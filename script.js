@@ -21,6 +21,7 @@ child2Btn.addEventListener("click", () => checkGuess(gameData.child2));
 
 // Load images from predefined directories
 async function loadImages() {
+    console.log("Loading Images");
     const loadImagesFromDir = async (dirName) => {
         const response = await fetch(`${dirName}/`);
         const html = await response.text();
@@ -42,6 +43,7 @@ async function loadImages() {
 }
 
 function startGame() {
+    console.log("Game starting");
     nextRound();
 }
 

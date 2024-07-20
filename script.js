@@ -19,23 +19,37 @@ const messageElement = document.getElementById("message");
 child1Btn.addEventListener("click", () => checkGuess(gameData.child1));
 child2Btn.addEventListener("click", () => checkGuess(gameData.child2));
 
-// Predefined list of image filenames
-const yoniImages = ['yoni1.jpg', 'yoni2.jpg', 'yoni3.jpg', 'yoni4.jpg', 'yoni5.jpg'];
-const yoavImages = ['yoav1.jpg', 'yoav2.jpg', 'yoav3.jpg', 'yoav4.jpg', 'yoav5.jpg'];
-
-function initializeGame() {
+async function initializeGame() {
     console.log('Initializing game...');
-    gameData.child1.images = yoniImages.map(img => `yoni/${img}`);
-    gameData.child2.images = yoavImages.map(img => `yoav/${img}`);
+    try {
+        gameData.child1.images = await getImagesFromDirectory('yoni');
+        gameData.child2.images = await getImagesFromDirectory('yoav');
 
-    totalRounds = gameData.child1.images.length + gameData.child2.images.length;
-    totalRoundsElement.textContent = totalRounds;
+        totalRounds = gameData.child1.images.length + gameData.child2.images.length;
+        totalRoundsElement.textContent = totalRounds;
 
-    console.log('Total rounds:', totalRounds);
-    console.log('Child 1 images:', gameData.child1.images);
-    console.log('Child 2 images:', gameData.child2.images);
+        console.log('Total rounds:', totalRounds);
+        console.log('Child 1 images:', gameData.child1.images);
+        console.log('Child 2 images:', gameData.child2.images);
 
-    startGame();
+        startGame();
+    } catch (error) {
+        console.error('Error initializing game:', error);
+        messageElement.textContent = "Error loading images. Please check the console for details.";
+    }
+}
+
+async function getImagesFromDirectory(directory) {
+    console.log(`Fetching images from ${directory}...`);
+    const response = await fetch(`${directory}/`);
+    const text = await response.text();
+    const parser = new DOMParser();
+    const html = parser.parseFromString(text, 'text/html');
+    const links = Array.from(html.querySelectorAll('a'));
+    return links
+        .map(link => link.href)
+        .filter(href => href.match(/\.(jpg|jpeg|png|gif)$/i))
+        .map(href => new URL(href).pathname);
 }
 
 function startGame() {
@@ -59,8 +73,14 @@ function nextRound() {
     currentChild = randomChild;
     console.log('Current child:', currentChild.name);
 
-    const randomIndex = Math.floor(Math.random() * randomChild.images.length);
-    const imageUrl = randomChild.images.splice(randomIndex, 1)[0];
+    if (currentChild.images.length === 0) {
+        console.log('No more images for this child. Ending game.');
+        endGame();
+        return;
+    }
+
+    const randomIndex = Math.floor(Math.random() * currentChild.images.length);
+    const imageUrl = currentChild.images.splice(randomIndex, 1)[0];
     console.log('Selected image:', imageUrl);
 
     imageElement.style.opacity = '0';

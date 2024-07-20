@@ -19,87 +19,100 @@ const messageElement = document.getElementById("message");
 child1Btn.addEventListener("click", () => checkGuess(gameData.child1));
 child2Btn.addEventListener("click", () => checkGuess(gameData.child2));
 
-// Load images from predefined directories
-async function loadImages() {
-    console.log("Loading Images");
-    const loadImagesFromDir = async (dirName) => {
-        const response = await fetch(`${dirName}/`);
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const links = Array.from(doc.querySelectorAll('a'));
-        return links
-            .map(link => link.href)
-            .filter(href => href.match(/\.(jpg|jpeg|png|gif)$/i));
-    };
+// Predefined list of image filenames
+const yoniImages = ['yoni1.jpg', 'yoni2.jpg', 'yoni3.jpg', 'yoni4.jpg', 'yoni5.jpg'];
+const yoavImages = ['yoav1.jpg', 'yoav2.jpg', 'yoav3.jpg', 'yoav4.jpg', 'yoav5.jpg'];
 
-    gameData.child1.images = await loadImagesFromDir('yoni');
-    gameData.child2.images = await loadImagesFromDir('yoav');
+function initializeGame() {
+    console.log('Initializing game...');
+    gameData.child1.images = yoniImages.map(img => `yoni/${img}`);
+    gameData.child2.images = yoavImages.map(img => `yoav/${img}`);
 
     totalRounds = gameData.child1.images.length + gameData.child2.images.length;
     totalRoundsElement.textContent = totalRounds;
+
+    console.log('Total rounds:', totalRounds);
+    console.log('Child 1 images:', gameData.child1.images);
+    console.log('Child 2 images:', gameData.child2.images);
 
     startGame();
 }
 
 function startGame() {
-    console.log("Game starting");
+    console.log('Starting game...');
     nextRound();
 }
 
 function nextRound() {
+    console.log('Starting next round...');
     if (currentRound >= totalRounds) {
+        console.log('All rounds completed. Ending game.');
         endGame();
         return;
     }
 
     currentRound++;
     roundElement.textContent = currentRound;
+    console.log('Current round:', currentRound);
 
     const randomChild = Math.random() < 0.5 ? gameData.child1 : gameData.child2;
     currentChild = randomChild;
+    console.log('Current child:', currentChild.name);
 
     const randomIndex = Math.floor(Math.random() * randomChild.images.length);
     const imageUrl = randomChild.images.splice(randomIndex, 1)[0];
-    
+    console.log('Selected image:', imageUrl);
+
     imageElement.style.opacity = '0';
     setTimeout(() => {
         imageElement.src = imageUrl;
         imageElement.style.opacity = '1';
+        console.log('Image displayed');
     }, 300);
 
     messageElement.textContent = "";
 }
 
 function checkGuess(guessedChild) {
+    console.log('Checking guess...');
+    console.log('Guessed child:', guessedChild.name);
+    console.log('Correct child:', currentChild.name);
+
     const imageContainer = document.getElementById('image-container');
-    
+
     if (guessedChild === currentChild) {
         score++;
         scoreElement.textContent = score;
         messageElement.textContent = "Correct!";
         imageContainer.classList.add('correct-animation');
         messageElement.style.color = '#4CAF50';
+        console.log('Correct guess. New score:', score);
     } else {
         messageElement.textContent = `Incorrect. It was ${currentChild.name}.`;
         imageContainer.classList.add('incorrect-animation');
         messageElement.style.color = '#f44336';
+        console.log('Incorrect guess. Score remains:', score);
     }
 
     setTimeout(() => {
         imageContainer.classList.remove('correct-animation', 'incorrect-animation');
         messageElement.style.color = '';
+        console.log('Animations reset');
     }, 500);
 
+    console.log('Starting next round in 1.5 seconds...');
     setTimeout(nextRound, 1500);
 }
 
 function endGame() {
+    console.log('Game ended.');
     imageElement.style.display = "none";
     child1Btn.style.display = "none";
     child2Btn.style.display = "none";
     messageElement.textContent = `Game Over! Your score: ${score}/${totalRounds}`;
+    console.log(`Final score: ${score}/${totalRounds}`);
 }
 
-// Start loading images when the page loads
-window.addEventListener('load', loadImages);
+// Initialize the game when the page loads
+window.addEventListener('load', initializeGame);
+console.log('Script loaded. Waiting for page load to initialize game.');

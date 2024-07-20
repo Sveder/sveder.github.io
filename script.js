@@ -1,6 +1,6 @@
 let gameData = {
-    child1: { name: "", images: [] },
-    child2: { name: "", images: [] }
+    child1: { name: "Yoni", images: [] },
+    child2: { name: "Yoav", images: [] }
 };
 
 let currentRound = 0;
@@ -8,12 +8,6 @@ let score = 0;
 let currentChild;
 let totalRounds = 0;
 
-const selectFoldersBtn = document.getElementById("select-folders");
-const startGameBtn = document.getElementById("start-game");
-const child1NameInput = document.getElementById("child1-name");
-const child2NameInput = document.getElementById("child2-name");
-const setupDiv = document.getElementById("setup");
-const gameDiv = document.getElementById("game");
 const imageElement = document.getElementById("child-image");
 const child1Btn = document.getElementById("child1-btn");
 const child2Btn = document.getElementById("child2-btn");
@@ -22,51 +16,32 @@ const roundElement = document.getElementById("round-value");
 const totalRoundsElement = document.getElementById("total-rounds");
 const messageElement = document.getElementById("message");
 
-selectFoldersBtn.addEventListener("click", selectFolders);
-startGameBtn.addEventListener("click", startGame);
 child1Btn.addEventListener("click", () => checkGuess(gameData.child1));
 child2Btn.addEventListener("click", () => checkGuess(gameData.child2));
 
-async function selectFolders() {
-    try {
-        const dirHandle1 = await window.showDirectoryPicker();
-        const dirHandle2 = await window.showDirectoryPicker();
+// Load images from predefined directories
+async function loadImages() {
+    const loadImagesFromDir = async (dirName) => {
+        const response = await fetch(`${dirName}/`);
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const links = Array.from(doc.querySelectorAll('a'));
+        return links
+            .map(link => link.href)
+            .filter(href => href.match(/\.(jpg|jpeg|png|gif)$/i));
+    };
 
-        gameData.child1.images = await loadImagesFromFolder(dirHandle1);
-        gameData.child2.images = await loadImagesFromFolder(dirHandle2);
+    gameData.child1.images = await loadImagesFromDir('yoni');
+    gameData.child2.images = await loadImagesFromDir('yoav');
 
-        totalRounds = gameData.child1.images.length + gameData.child2.images.length;
-        startGameBtn.disabled = false;
-        messageElement.textContent = "Folders selected successfully!";
-    } catch (error) {
-        console.error("Error selecting folders:", error);
-        messageElement.textContent = "Error selecting folders. Please try again.";
-    }
-}
+    totalRounds = gameData.child1.images.length + gameData.child2.images.length;
+    totalRoundsElement.textContent = totalRounds;
 
-async function loadImagesFromFolder(dirHandle) {
-    const images = [];
-    for await (const entry of dirHandle.values()) {
-        if (entry.kind === "file" && entry.name.match(/\.(jpg|jpeg|png|gif)$/i)) {
-            const file = await entry.getFile();
-            const imageUrl = URL.createObjectURL(file);
-            images.push(imageUrl);
-        }
-    }
-    return images;
+    startGame();
 }
 
 function startGame() {
-    gameData.child1.name = child1NameInput.value || "Child 1";
-    gameData.child2.name = child2NameInput.value || "Child 2";
-
-    child1Btn.textContent = gameData.child1.name;
-    child2Btn.textContent = gameData.child2.name;
-    totalRoundsElement.textContent = totalRounds;
-
-    setupDiv.style.display = "none";
-    gameDiv.style.display = "block";
-
     nextRound();
 }
 
@@ -123,3 +98,6 @@ function endGame() {
     child2Btn.style.display = "none";
     messageElement.textContent = `Game Over! Your score: ${score}/${totalRounds}`;
 }
+
+// Start loading images when the page loads
+window.addEventListener('load', loadImages);

@@ -1,0 +1,70 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+#game-container {
+    text-align: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#image-container {
+    margin: 20px 0;
+    transition: all 0.3s ease;
+}
+
+#child-image {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 5px;
+    transition: opacity 0.3s ease;
+}
+
+button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+input {
+    margin: 10px;
+    padding: 5px;
+    font-size: 16px;
+}
+
+#message {
+    margin-top: 20px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+@keyframes correct-answer {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); background-color: #4CAF50; }
+    100% { transform: scale(1); }
+}
+
+@keyframes incorrect-answer {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+    100% { transform: translateX(0); }
+}
+
+.correct-animation {
+    animation: correct-answer 0.5s ease;
+}
+
+.incorrect-animation {
+    animation: incorrect-answer 0.5s ease;
+    background-color: #f44336;
+}

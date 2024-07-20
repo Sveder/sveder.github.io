@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Child Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <h1>Guess the Child Game</h1>
+        <div id="setup">
+            <button id="select-folders">Select Child Folders</button>
+            <input type="text" id="child1-name" placeholder="Child 1 Name">
+            <input type="text" id="child2-name" placeholder="Child 2 Name">
+            <button id="start-game" disabled>Start Game</button>
+        </div>
+        <div id="game" style="display: none;">
+            <div id="image-container">
+                <img id="child-image" src="" alt="Child's photo">
+            </div>
+            <div id="controls">
+                <button id="child1-btn"></button>
+                <button id="child2-btn"></button>
+            </div>
+            <div id="score">Score: <span id="score-value">0</span></div>
+            <div id="round">Round: <span id="round-value">0</span> / <span id="total-rounds">0</span></div>
+            <div id="message"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
